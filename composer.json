@@ -1,0 +1,38 @@
+{
+    "name": "nichxlson/craft-pricelists",
+    "description": "Pricelists for customers in Craft Commerce",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "commerce",
+        "craft-plugin",
+        "pricing",
+        "pricelists"
+    ],
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Alex Nicholson",
+            "email": "hello@alexnicholson.co.uk"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.6",
+        "craftcms/commerce": "^3.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "nichxlson\\pricelists\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Pricelists",
+        "handle": "pricelists",
+        "hasCpSettings": false,
+        "hasCpSection": false,
+        "changelogUrl": "https://raw.githubusercontent.com/nichxlson/craft-pricelists/main/CHANGELOG.md",
+        "class": "nichxlson\\pricelists\\Pricelists"
+    }
+}
