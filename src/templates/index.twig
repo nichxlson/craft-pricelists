@@ -1,0 +1,9 @@
+{% extends '_layouts/elementindex' %}
+{% set title = 'Pricelists' %}
+{% set elementType = 'nichxlson\\pricelists\\elements\\Pricelist' %}
+
+{% block actionButton %}
+    <div class="btngroup">
+        <a href="{{ cpUrl('pricelists/new') }}" class="btn submit add icon">{{ 'New Pricelist' | t('pricelist') }}</a>
+    </div>
+{% endblock %}
