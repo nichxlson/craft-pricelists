@@ -131,7 +131,15 @@ class Pricelist extends Element
 
         if(is_array($customers)) {
             foreach($customers as $customer) {
-                $this->_customers[] = Craft::$app->getUsers()->getUserById($customer);
+                $innerCustomers = $customer['customers'];
+
+                if(is_array($innerCustomers)) {
+                    foreach($innerCustomers as $innerCustomer) {
+                        $this->_customers[] = [
+                            'customer' => Craft::$app->getUsers()->getUserById($innerCustomer)
+                        ];
+                    }
+                }
             }
         }
     }

@@ -31,6 +31,7 @@ class PricelistsController extends BaseController
         $variables['pricelist'] = $pricelist;
         $variables['customers'] = $pricelist->getCustomers();
         $variables['products'] = $pricelist->getProducts();
+        $variables['customerRowHtml'] = Pricelists::getInstance()->pricelistService->getCustomerRowHtml();
         $variables['productRowHtml'] = Pricelists::getInstance()->pricelistService->getProductRowHtml();
         $variables['siteIds'] = Craft::$app->getSites()->getAllSiteIds();
         $variables['enabledSiteIds'] = Craft::$app->getSites()->getAllSiteIds();
@@ -63,8 +64,6 @@ class PricelistsController extends BaseController
         $pricelist->setFieldValuesFromRequest('fields');
 
         $pricelist->siteId = $siteId ?? $pricelist->siteId;
-
-        $test = $request->getBodyParam('products');
 
         if(!Pricelists::getInstance()->pricelistService->save($pricelist)) {
             Craft::$app->getSession()->setError(\Craft::t('pricelists', 'Couldn’t save pricelist.'));

@@ -3,22 +3,27 @@
 <div class="create-pricelist-product" data-id="{{ productId ?? '' }}">
     <div class="create-pricelist-product-row pricelist-table-row">
         <div class="pricelist-table-cell">
+            {% set customers = [] %}
+
+            {% if customer and customer.id %}
+                {% set customers = [customer] %}
+            {% endif %}
+
             {{ forms.elementSelectField({
-                id: 'customerIds',
-                name: 'customerIds',
+                id: 'customers',
+                name: 'customers',
+                elements: customers,
                 elementType: 'craft\\elements\\User',
-                selectionLabel: 'Select customer' | t('events'),
-                elements: [],
+                selectionLabel: 'Select customer' | t('pricelists'),
                 limit: 1,
                 errors: [],
+                required: true,
             }) }}
         </div>
 
-        <div class="pricelist-table-cell">
-        </div>
+        <div class="pricelist-table-cell"></div>
 
-        <div class="pricelist-table-cell">
-        </div>
+        <div class="pricelist-table-cell"></div>
 
         <div class="pricelist-table-cell thin">
             <a class="delete icon button" title="{{ 'Delete' | t }}" role="button"></a>

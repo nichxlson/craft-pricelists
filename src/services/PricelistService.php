@@ -42,6 +42,31 @@ class PricelistService extends Component
         ];
     }
 
+    public function getCustomerRowHtml(): array {
+        $originalNamespace = Craft::$app->getView()->getNamespace();
+        $namespace = Craft::$app->getView()->namespaceInputName('customers[__ROWID__]', $originalNamespace);
+        Craft::$app->getView()->setNamespace($namespace);
+
+        Craft::$app->getView()->startJsBuffer();
+
+        $variables = [
+            'customer' => [],
+        ];
+
+        $template = Craft::$app->getView()->renderTemplate('pricelists/_includes/customer-row', $variables);
+
+        $bodyHtml = Craft::$app->getView()->namespaceInputs($template);
+        $footHtml = Craft::$app->getView()->clearJsBuffer();
+
+        Craft::$app->getView()->setNamespace($originalNamespace);
+
+        return [
+            'bodyHtml' => $bodyHtml,
+            'footHtml' => $footHtml,
+        ];
+    }
+
+
     public function save(Pricelist $pricelist) {
         if(!Craft::$app->getElements()->saveElement($pricelist)) {
             return false;
@@ -53,7 +78,7 @@ class PricelistService extends Component
         foreach($pricelist->getCustomers() as $customer) {
             $pricelistCustomer = new PricelistCustomerModel();
             $pricelistCustomer->setPricelist($pricelist);
-            $pricelistCustomer->setCustomer($customer);
+            $pricelistCustomer->setCustomer($customer['customer']);
 
             if(!$pricelistCustomer->toRecord()->save()) {
                 return false;

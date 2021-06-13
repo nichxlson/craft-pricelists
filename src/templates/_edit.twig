@@ -16,13 +16,13 @@
 {% set fullPageForm = true %}
 
 {% set tabs = {
-    content: {
-        label: 'Products' | t('pricelists'),
-        url: '#pricelists-products-container',
-    },
-    settings: {
+    customers: {
         label: 'Customers' | t('pricelists'),
         url: '#pricelists-customers-container',
+    },
+    products: {
+        label: 'Products' | t('pricelists'),
+        url: '#pricelists-products-container',
     },
 } %}
 
@@ -49,10 +49,9 @@
             fieldClass: 'width-100',
         }) }}
 
-        {#
         <hr>
 
-        <div id="pricelists-container">
+        <div id="pricelists-customers-container">
             <div id="pricelistProductsTable" class="pricelist-products-table data fullwidth collapsible">
                 <div class="pricelist-products-table-header pricelist-table-row">
                     <div class="pricelist-table-cell">
@@ -73,17 +72,27 @@
                 </div>
 
                 <div class="create-pricelist-products-container">
-                    {% include 'pricelists/_includes/pricelist-customer-row' %}
+                    {% set totalNewCustomers = 0 %}
+
+                    {% for customer in customers %}
+                        {% set customerId = customer.id %}
+
+                        {% if not customerId %}
+                            {% set totalNewCustomers = totalNewCustomers + 1 %}
+                            {% set customerId = 'new' ~ totalNewCustomers %}
+                        {% endif %}
+
+                        {% namespace 'customers[' ~ customerId ~ ']' %}
+                            {% include 'pricelists/_includes/customer-row' %}
+                        {% endnamespace %}
+                    {% endfor %}
                 </div>
             </div>
 
-            <a class="btn add add-pricelist-product icon dashed" tabindex="0">{{ 'Add customer' | t('events') }}</a>
+            <a class="btn add add-pricelist-customer icon dashed" tabindex="0">{{ 'Add customer' | t('events') }}</a>
         </div>
-        #}
 
-        <hr>
-
-        <div id="pricelists-products-container">
+        <div id="pricelists-products-container" class="hidden">
             <div id="pricelistProductsTable" class="pricelist-products-table data fullwidth collapsible">
                 <div class="pricelist-products-table-header pricelist-table-row">
                     <div class="pricelist-table-cell">
@@ -123,11 +132,6 @@
 
             <a class="btn add add-pricelist-product icon dashed" tabindex="0">{{ 'Add product' | t('events') }}</a>
         </div>
-
-
-        <div id="pricelists-customers-container" class="hidden">
-            test
-        </div>
     </div>
 {% endblock %}
 
@@ -152,5 +156,11 @@
         'pricelists-products-container',
         {{ products | json_encode | raw }},
         {{ productRowHtml | json_encode | raw }}
+    );
+
+    new Craft.Pricelists.CustomerEdit(
+        'pricelists-customers-container',
+        {{ customers | json_encode | raw }},
+        {{ customerRowHtml | json_encode | raw }}
     );
 {% endjs %}
