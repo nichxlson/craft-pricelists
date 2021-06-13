@@ -45,6 +45,18 @@ class Install extends Migration
                 'uid' => $this->uid(),
             ]);
         }
+
+        if(!$this->db->tableExists('{{%pricelists_pricelist_product}}')) {
+            $this->createTable('{{%pricelists_pricelist_product}}', [
+                'id' => $this->primaryKey(),
+                'pricelistId' => $this->integer(),
+                'productId' => $this->integer(),
+                'pricelistPrice' => $this->float(),
+                'dateCreated' => $this->dateTime()->notNull(),
+                'dateUpdated' => $this->dateTime()->notNull(),
+                'uid' => $this->uid(),
+            ]);
+        }
     }
 
     protected function createIndexes() {
@@ -59,6 +71,20 @@ class Install extends Migration
             $this->db->getIndexName('{{%pricelists_pricelist_customer}}', 'customerId', true),
             '{{%pricelists_pricelist_customer}}',
             'customerId',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName('{{%pricelists_pricelist_product}}', 'pricelistId', true),
+            '{{%pricelists_pricelist_product}}',
+            'pricelistId',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName('{{%pricelists_pricelist_product}}', 'productId', true),
+            '{{%pricelists_pricelist_product}}',
+            'productId',
             false
         );
     }
@@ -93,6 +119,26 @@ class Install extends Migration
             'CASCADE',
             null
         );
+
+        $this->addForeignKey(
+            $this->db->getForeignKeyName('{{%pricelists_pricelist_product}}', 'pricelistId'),
+            '{{%pricelists_pricelist_product}}',
+            'pricelistId',
+            '{{%pricelists_pricelist}}',
+            'id',
+            'CASCADE',
+            null
+        );
+
+        $this->addForeignKey(
+            $this->db->getForeignKeyName('{{%pricelists_pricelist_product}}', 'productId'),
+            '{{%pricelists_pricelist_product}}',
+            'productId',
+            '{{%commerce_variants}}',
+            'id',
+            'CASCADE',
+            null
+        );
     }
 
     protected function dropForeignKeys() {
@@ -103,11 +149,16 @@ class Install extends Migration
         if($this->db->tableExists('{{%pricelists_pricelist_customer}}')) {
             MigrationHelper::dropAllForeignKeysOnTable('{{%pricelists_pricelist_customer}}', $this);
         }
+
+        if($this->db->tableExists('{{%pricelists_pricelist_product}}')) {
+            MigrationHelper::dropAllForeignKeysOnTable('{{%pricelists_pricelist_product}}', $this);
+        }
     }
 
     protected function dropTables() {
         $this->dropTableIfExists('{{%pricelists_pricelist}}');
         $this->dropTableIfExists('{{%pricelists_pricelist_customer}}');
+        $this->dropTableIfExists('{{%pricelists_pricelist_product}}');
     }
 
     protected function dropProjectConfig() {

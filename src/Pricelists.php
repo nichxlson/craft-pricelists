@@ -6,19 +6,20 @@ use Craft;
 use craft\base\Plugin;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\events\LineItemEvent;
+use craft\commerce\helpers\Currency;
+use craft\commerce\services\LineItems;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterCpNavItemsEvent;
+use craft\events\RegisterElementHtmlAttributesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\services\Elements;
 use craft\web\twig\variables\Cp;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
-use nichxlson\pricelists\behaviors\ProductBehavior;
-use nichxlson\pricelists\behaviors\VariantBehavior;
 use nichxlson\pricelists\elements\Pricelist;
 use nichxlson\pricelists\services\PricelistService;
-use nichxlson\pricelists\variables\PricelistVariable;
 use yii\base\Event;
 
 class Pricelists extends Plugin
@@ -29,7 +30,7 @@ class Pricelists extends Plugin
 
     public $hasCpSettings = false;
 
-    public $hasCpSection = false;
+    public $hasCpSection = true;
 
     public function init() {
         parent::init();
@@ -55,7 +56,19 @@ class Pricelists extends Plugin
             function(RegisterCpNavItemsEvent $e) {
                 $e->navItems['pricelists'] = [
                     'label' => Craft::t('pricelists', 'Pricelists'),
-                    'url' => 'pricelists'
+                    'url' => 'pricelists',
+                    /*
+                    'subnav' => [
+                        'pricelists' => [
+                            'label' => Craft::t('pricelists', 'Pricelists'),
+                            'url' => 'pricelists/pricelists',
+                        ],
+                        'products' => [
+                            'label' => Craft::t('pricelists', 'Products'),
+                            'url' => 'pricelists/products',
+                        ],
+                    ]
+                    */
                 ];
             }
         );
@@ -67,7 +80,8 @@ class Pricelists extends Plugin
                 $event->rules['pricelists'] = 'pricelists/pricelists/index';
                 $event->rules['pricelists/new'] = 'pricelists/pricelists/edit';
                 $event->rules['pricelists/<pricelistId:\d+>'] = 'pricelists/pricelists/edit';
-            });
+            }
+        );
 
         Event::on(
             Elements::class,
@@ -82,7 +96,7 @@ class Pricelists extends Plugin
             CraftVariable::EVENT_INIT,
             function(Event $event) {
                 $variable = $event->sender;
-                $variable->set('pricelist', PricelistVariable::class);
+//                $variable->set('pricelist', PricelistVariable::class);
             }
         );
 
@@ -91,7 +105,7 @@ class Pricelists extends Plugin
             Product::EVENT_DEFINE_BEHAVIORS,
             function(DefineBehaviorsEvent $event) {
                 $event->sender->attachBehaviors([
-                    ProductBehavior::class
+//                    ProductBehavior::class
                 ]);
             }
         );
@@ -101,8 +115,34 @@ class Pricelists extends Plugin
             Variant::EVENT_DEFINE_BEHAVIORS,
             function(DefineBehaviorsEvent $event) {
                 $event->sender->attachBehaviors([
-                    VariantBehavior::class
+//                    VariantBehavior::class
                 ]);
+            }
+        );
+
+        Event::on(
+            LineItems::class,
+            LineItems::EVENT_BEFORE_SAVE_LINE_ITEM,
+            function(LineItemEvent $event) {
+//                $event->lineItem->price = 123;
+//                $event->lineItem->salePrice = 123;
+            }
+        );
+
+        Event::on(
+            LineItems::class,
+            LineItems::EVENT_POPULATE_LINE_ITEM,
+            function(LineItemEvent $event) {
+//                $event->lineItem->price = 123;
+//                $event->lineItem->salePrice = 123;
+            }
+        );
+
+        Event::on(
+            Variant::class,
+            Variant::EVENT_REGISTER_HTML_ATTRIBUTES,
+            function(RegisterElementHtmlAttributesEvent $event) {
+                $event->htmlAttributes['data-price'] = Currency::round($event->sender->price);
             }
         );
     }

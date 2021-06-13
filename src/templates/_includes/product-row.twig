@@ -1,0 +1,59 @@
+{% import '_includes/forms' as forms %}
+
+<div class="create-pricelist-product" data-id="{{ productId ?? '' }}">
+    <div class="create-pricelist-product-row pricelist-table-row">
+        <div class="pricelist-table-cell">
+            {% set variants = [] %}
+
+            {% if product and product.product %}
+                {% set variants = [product.product] %}
+            {% endif %}
+
+            {{ forms.elementSelectField({
+                id: 'products',
+                name: 'products',
+                elements: variants,
+                elementType: 'craft\\commerce\\elements\\Variant',
+                selectionLabel: 'Select product variant' | t('pricelists'),
+                limit: 1,
+                errors: [],
+                required: true,
+            }) }}
+        </div>
+
+        {% set originalPrice = 0 %}
+
+        {% if product and product.product %}
+            {% set originalPrice = product.product.price|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true,format=false) %}
+        {% endif %}
+
+        <div class="pricelist-table-cell">
+            {{ forms.textField({
+                id: 'originalPrice',
+                name: 'originalPrice',
+                placeholder: '0',
+                value: originalPrice,
+                class: 'pricelist-original-price',
+                errors: [],
+                readonly: true,
+                unit: craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,
+            }) }}
+        </div>
+
+        <div class="pricelist-table-cell">
+            {{ forms.textField({
+                id: 'pricelistPrice',
+                name: 'pricelistPrice',
+                placeholder: 'eg. 9',
+                value: product.pricelistPrice ?? '',
+                class: 'pricelist-price',
+                errors: [],
+                unit: craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,
+            }) }}
+        </div>
+
+        <div class="pricelist-table-cell thin">
+            <a class="delete icon button" title="{{ 'Delete' | t }}" role="button"></a>
+        </div>
+    </div>
+</div>

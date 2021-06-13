@@ -1,0 +1,82 @@
+.pricelist-products-table {
+    border-radius: 5px;
+    border: 1px solid rgba(96,125,159,0.25);
+    width: 100%;
+    box-shadow: 0 1px 5px -1px rgb(0 0 0 / 10%);
+}
+
+.pricelist-table-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-left: -5px;
+    margin-right: -5px;
+    box-sizing: border-box;
+}
+
+.pricelist-table-cell {
+    position: relative;
+    width: 100%;
+    min-height: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+    box-sizing: border-box;
+}
+
+.pricelist-table-cell:nth-of-type(1) {
+    flex: 0 0 35%;
+    max-width: 35%;
+}
+
+.pricelist-table-cell:nth-of-type(2) {
+    flex: 0 0 30%;
+    max-width: 30%;
+}
+
+.pricelist-table-cell:nth-of-type(3) {
+    flex: 0 0 30%;
+    max-width: 30%;
+}
+
+.pricelist-table-cell:nth-of-type(4) {
+    flex: 0 0 5%;
+    max-width: 5%;
+    text-align: right;
+}
+
+.pricelist-table-cell span {
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+.create-pricelist-product-row {
+    padding: 10px;
+}
+
+.pricelist-products-table-header {
+    color: #677d92;
+    font-weight: normal;
+    background: #e4edf6;
+    padding: 5px;
+    margin: 0;
+    border-bottom: 1px solid rgba(96,125,159,0.25);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    box-sizing: border-box;
+}
+
+.pricelist-table-cell .flex > * {
+    margin-bottom: 0;
+}
+
+.add-pricelist-product {
+    margin-top: 10px;
+}
+
+.create-pricelist-product {
+    border-bottom: 1px solid #dedede;
+}
+
+.create-pricelist-product:last-child {
+    border-bottom: none;
+}

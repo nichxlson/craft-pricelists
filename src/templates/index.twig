@@ -1,6 +1,12 @@
 {% extends '_layouts/elementindex' %}
-{% set title = 'Pricelists' %}
+
+{% set selectedSubnavItem = 'pricelists' %}
+
 {% set elementType = 'nichxlson\\pricelists\\elements\\Pricelist' %}
+
+{% if title is not defined %}
+    {% set title = 'Pricelists' | t('pricelists') %}
+{% endif %}
 
 {% block actionButton %}
     <div class="btngroup">

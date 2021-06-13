@@ -2,24 +2,24 @@
 
 namespace nichxlson\pricelists\records;
 
-use craft\elements\User;
+use craft\commerce\elements\Variant;
 use nichxlson\pricelists\elements\Pricelist;
 use yii\db\ActiveQueryInterface;
 use yii\db\ActiveRecord;
 
-class PricelistCustomerRecord extends ActiveRecord
+class PricelistProductRecord extends ActiveRecord
 {
     public static function tableName(): string {
-        return '{{%pricelists_pricelist_customer}}';
+        return '{{%pricelists_pricelist_product}}';
     }
 
     public function getPricelist(): ActiveQueryInterface {
         return $this->hasOne(Pricelist::class, ['id' => 'pricelistId']);
     }
 
-    public function getCustomer(): User {
-        return User::findOne([
-            'id' => $this->customerId,
+    public function getProduct(): Variant {
+        return Variant::findOne([
+            'id' => $this->productId,
             'status' => null
         ]);
     }

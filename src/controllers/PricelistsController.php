@@ -3,10 +3,6 @@
 namespace nichxlson\pricelists\controllers;
 
 use Craft;
-use craft\commerce\elements\Product;
-use craft\commerce\elements\Variant;
-use craft\commerce\Plugin;
-use craft\elements\User;
 use craft\web\Controller as BaseController;
 use nichxlson\pricelists\elements\Pricelist;
 use nichxlson\pricelists\Pricelists;
@@ -16,6 +12,8 @@ use yii\web\Response;
 class PricelistsController extends BaseController
 {
     public function actionIndex(): Response {
+        $this->requireCpRequest();
+
         return $this->renderTemplate('pricelists/index');
     }
 
@@ -30,20 +28,14 @@ class PricelistsController extends BaseController
             $pricelist = $pricelist ?? new Pricelist();
         }
 
-        $customers = Craft::$app->getUsers();
+        $variables['pricelist'] = $pricelist;
+        $variables['customers'] = $pricelist->getCustomers();
+        $variables['products'] = $pricelist->getProducts();
+        $variables['productRowHtml'] = Pricelists::getInstance()->pricelistService->getProductRowHtml();
+        $variables['siteIds'] = Craft::$app->getSites()->getAllSiteIds();
+        $variables['enabledSiteIds'] = Craft::$app->getSites()->getAllSiteIds();
 
-        // Set the "Continue Editing" URL
-        $siteSegment = Craft::$app->getIsMultiSite() && Craft::$app->getSites()->getCurrentSite()->id != $site->id ? "/{$site->handle}" : '';
-        $continueEditingUrl = 'pricelists/{id}' . $siteSegment;
-
-        return $this->renderTemplate('pricelists/_edit', [
-            'pricelist' => $pricelist,
-            'customers' => $customers,
-            'customerElementType' => User::class,
-            'continueEditingUrl' => $continueEditingUrl,
-            'siteIds' => Craft::$app->getSites()->getAllSiteIds(),
-            'enabledSiteIds' => Craft::$app->getSites()->getAllSiteIds(),
-        ]);
+        return $this->renderTemplate('pricelists/_edit', $variables);
     }
 
     public function actionSave() {
@@ -67,9 +59,12 @@ class PricelistsController extends BaseController
 
         $pricelist->title = $request->getBodyParam('title', $pricelist->title);
         $pricelist->setCustomers($request->getBodyParam('customers'));
+        $pricelist->setProducts($request->getBodyParam('products'));
         $pricelist->setFieldValuesFromRequest('fields');
 
         $pricelist->siteId = $siteId ?? $pricelist->siteId;
+
+        $test = $request->getBodyParam('products');
 
         if(!Pricelists::getInstance()->pricelistService->save($pricelist)) {
             Craft::$app->getSession()->setError(\Craft::t('pricelists', 'Couldn’t save pricelist.'));
@@ -80,7 +75,7 @@ class PricelistsController extends BaseController
             return null;
         }
 
-        Craft::$app->getSession()->setNotice(\Craft::t('pricelists', 'Pricelists saved.'));
+        Craft::$app->getSession()->setNotice(\Craft::t('pricelists', 'Pricelist saved.'));
 
         return $this->redirectToPostedUrl($pricelist);
     }

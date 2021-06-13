@@ -4,6 +4,7 @@ namespace nichxlson\pricelists\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\UrlHelper;
@@ -14,13 +15,14 @@ use nichxlson\pricelists\records\PricelistRecord;
 class Pricelist extends Element
 {
     protected $_customers;
+    protected $_products;
 
     public static function displayName(): string {
-        return 'Pricelist';
+        return Craft::t('app', 'Pricelist');
     }
 
     public static function pluralDisplayName(): string {
-        return 'Pricelists';
+        return Craft::t('app', 'Pricelists');
     }
 
     public static function hasContent(): bool {
@@ -60,6 +62,7 @@ class Pricelist extends Element
     protected static function defineTableAttributes(): array {
         return [
             'title' => ['label' => Craft::t('pricelists', 'Title')],
+//            'customers' => ['label' => Craft::t('pricelists', 'Customers')],
         ];
     }
 
@@ -67,9 +70,26 @@ class Pricelist extends Element
         return ['title'];
     }
 
+    protected function tableAttributeHtml(string $attribute): string {
+        switch ($attribute) {
+            case 'customers':
+                $customerList = [];
+
+                foreach($this->getCustomers() as $customer) {
+                    $customerList[] = $customer->username;
+                }
+
+                return join(',', $customerList);
+
+            default: {
+                return parent::tableAttributeHtml($attribute);
+            }
+        }
+    }
+
     protected static function defineSortOptions(): array {
         return [
-            'title' => \Craft::t('pricelists', 'Title'),
+//            'title' => Craft::t('pricelists', 'Title'),
         ];
     }
 
@@ -112,6 +132,33 @@ class Pricelist extends Element
         if(is_array($customers)) {
             foreach($customers as $customer) {
                 $this->_customers[] = Craft::$app->getUsers()->getUserById($customer);
+            }
+        }
+    }
+
+    public function getProducts() {
+        if(is_null($this->_products) && $this->getId()) {
+            $this->_products = Pricelists::getInstance()->pricelistService->getProductsForPricelist($this);
+        }
+
+        return $this->_products;
+    }
+
+    public function setProducts($products) {
+        $this->_products = [];
+
+        if(is_array($products)) {
+            foreach($products as $product) {
+                $innerProducts = $product['products'];
+
+                if(is_array($innerProducts)) {
+                    foreach($innerProducts as $innerProduct) {
+                        $this->_products[] = [
+                            'pricelistPrice' => $product['pricelistPrice'],
+                            'variant' => Plugin::getInstance()->variants->getVariantById($innerProduct),
+                        ];
+                    }
+                }
             }
         }
     }

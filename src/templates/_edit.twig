@@ -3,58 +3,28 @@
 
 {% set selectedSubnavItem = 'pricelists' %}
 
+{% do view.registerAssetBundle('nichxlson\\pricelists\\assetbundles\\PricelistsAsset') %}
+
+{% if title is not defined %}
+    {% set title = 'Pricelists' | t('pricelists') %}
+{% endif %}
+
 {% set crumbs = [
     { label: 'Pricelists' | t('pricelists'), url: url('pricelists') },
 ] %}
 
-{% set title = pricelist.id ? ('Edit'|t('pricelists')) ~ ' ' ~ pricelist.title :  ('New pricelist'|t('pricelists')) %}
 {% set fullPageForm = true %}
-{% set saveShortcutRedirect = continueEditingUrl %}
 
-{% block actionButton %}
-    <div class="btngroup">
-        <input type="submit" class="btn submit" value="{{ 'Save' | t('app') }}">
-
-        <div class="btn submit menubtn"></div>
-        <div class="menu">
-            <ul>
-                <li>
-                    <a class="formsubmit" data-redirect="{{ continueEditingUrl | hash }}">
-                        {{ forms.optionShortcutLabel('S') }}
-                        {{ "Save and continue editing" | t('app') }}
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-{% endblock %}
-
-{% block contextMenu %}
-    {% if craft.app.getIsMultiSite() %}
-        <div class="btn menubtn" data-icon="world">{{ pricelist.site.name|t('site') }}</div>
-        <div class="menu">
-            <ul class="padded">
-                {% for siteId in siteIds %}
-                    {% set site = craft.app.sites.getSiteById(siteId) %}
-                    {% set status = siteId in enabledSiteIds ? 'enabled' : 'disabled' %}
-                    <li>
-                        {% if siteId == pricelist.siteId %}
-                            <a class="sel">
-                                <div class="status {{ status }}"></div>
-                                {{ site.name|t('site') }}
-                            </a>
-                        {% else %}
-                            <a href="{{ url('pricelists/new/' ~ site.handle) }}">
-                                <div class="status {{ status }}"></div>
-                                {{ site.name|t('site') }}
-                            </a>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
-{% endblock %}
+{% set tabs = {
+    content: {
+        label: 'Products' | t('pricelists'),
+        url: '#pricelists-products-container',
+    },
+    settings: {
+        label: 'Customers' | t('pricelists'),
+        url: '#pricelists-customers-container',
+    },
+} %}
 
 {% block content %}
     {{ actionInput('pricelists/pricelists/save') }}
@@ -65,27 +35,122 @@
 
     <div id="fields">
         {{ forms.textField({
-            label: 'Title'|t('pricelists'),
+            label: 'Title' | t('app'),
             site: pricelist.site,
             id: 'title',
             name: 'title',
             value: pricelist.title,
+            placeholder: 'Enter title' | t('app'),
             errors: pricelist.getErrors('title'),
             first: true,
             autofocus: true,
             required: true,
-            maxlength: 255
+            maxlength: 255,
+            fieldClass: 'width-100',
         }) }}
 
-        {{ forms.elementSelectField({
-            id: 'customers',
-            label: 'Customers'|t('pricelists'),
-            name: 'customers',
-            elements: pricelist.getCustomers(),
-            elementType: customerElementType,
-            limit: null,
-            errors: pricelist.getErrors('customers'),
-            required: true
-        }) }}
+        {#
+        <hr>
+
+        <div id="pricelists-container">
+            <div id="pricelistProductsTable" class="pricelist-products-table data fullwidth collapsible">
+                <div class="pricelist-products-table-header pricelist-table-row">
+                    <div class="pricelist-table-cell">
+                        <span class="required">{{ 'Customer' | t('pricelists') }}</span>
+                    </div>
+
+                    <div class="pricelist-table-cell">
+                        <span></span>
+                    </div>
+
+                    <div class="pricelist-table-cell">
+                        <span></span>
+                    </div>
+
+                    <div class="pricelist-table-cell">
+                        <span></span>
+                    </div>
+                </div>
+
+                <div class="create-pricelist-products-container">
+                    {% include 'pricelists/_includes/pricelist-customer-row' %}
+                </div>
+            </div>
+
+            <a class="btn add add-pricelist-product icon dashed" tabindex="0">{{ 'Add customer' | t('events') }}</a>
+        </div>
+        #}
+
+        <hr>
+
+        <div id="pricelists-products-container">
+            <div id="pricelistProductsTable" class="pricelist-products-table data fullwidth collapsible">
+                <div class="pricelist-products-table-header pricelist-table-row">
+                    <div class="pricelist-table-cell">
+                        <span class="required">{{ 'Product' | t('pricelists') }}</span>
+                    </div>
+
+                    <div class="pricelist-table-cell">
+                        <span>{{ 'Original price' | t('pricelists') }}</span>
+                    </div>
+
+                    <div class="pricelist-table-cell">
+                        <span class="required">{{ 'Pricelist price' | t('pricelists') }}</span>
+                    </div>
+
+                    <div class="pricelist-table-cell">
+                        <span></span>
+                    </div>
+                </div>
+
+                <div class="create-pricelist-products-container">
+                    {% set totalNewProducts = 0 %}
+
+                    {% for product in products %}
+                        {% set productId = product.id %}
+
+                        {% if not productId %}
+                            {% set totalNewProducts = totalNewProducts + 1 %}
+                            {% set productId = 'new' ~ totalNewProducts %}
+                        {% endif %}
+
+                        {% namespace 'products[' ~ productId ~ ']' %}
+                            {% include 'pricelists/_includes/product-row' %}
+                        {% endnamespace %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <a class="btn add add-pricelist-product icon dashed" tabindex="0">{{ 'Add product' | t('events') }}</a>
+        </div>
+
+
+        <div id="pricelists-customers-container" class="hidden">
+            test
+        </div>
     </div>
 {% endblock %}
+
+{% block details %}
+    {% if pricelist.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ 'Date Created' | t('pricelists') }}</h5>
+                <div class="value">{{ pricelist.dateCreated|date('short') }} {{ pricelist.dateCreated|time('short') }}</div>
+            </div>
+
+            <div class="data">
+                <h5 class="heading">{{ 'Date Updated' | t('pricelists') }}</h5>
+                <div class="value">{{ pricelist.dateUpdated|date('short') }} {{ pricelist.dateUpdated|time('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% js %}
+    new Craft.Pricelists.ProductEdit(
+        'pricelists-products-container',
+        {{ products | json_encode | raw }},
+        {{ productRowHtml | json_encode | raw }}
+    );
+{% endjs %}
