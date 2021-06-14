@@ -60,18 +60,6 @@ class Pricelists extends Plugin
                 $e->navItems['pricelists'] = [
                     'label' => Craft::t('pricelists', 'Pricelists'),
                     'url' => 'pricelists',
-                    /*
-                    'subnav' => [
-                        'pricelists' => [
-                            'label' => Craft::t('pricelists', 'Pricelists'),
-                            'url' => 'pricelists/pricelists',
-                        ],
-                        'products' => [
-                            'label' => Craft::t('pricelists', 'Products'),
-                            'url' => 'pricelists/products',
-                        ],
-                    ]
-                    */
                 ];
             }
         );

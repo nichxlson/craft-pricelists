@@ -3,7 +3,6 @@
 namespace nichxlson\pricelists\behaviors;
 
 use craft\commerce\helpers\Currency;
-use craft\helpers\StringHelper;
 use nichxlson\pricelists\Pricelists;
 use yii\base\Behavior;
 

@@ -2,7 +2,6 @@
 
 namespace nichxlson\pricelists\migrations;
 
-use Craft;
 use craft\db\Migration;
 use craft\helpers\MigrationHelper;
 
