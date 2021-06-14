@@ -12,6 +12,9 @@ use nichxlson\pricelists\records\PricelistProductRecord;
 
 class PricelistService extends Component
 {
+    private $_pricelists;
+    private $_products;
+
     public function getPricelistById(int $id, $siteId = null) {
         return Craft::$app->getElements()->getElementById($id, Pricelist::class, $siteId, [
             'status' => null,
@@ -117,6 +120,7 @@ class PricelistService extends Component
         return array_map(function(PricelistProductRecord $record) {
             return [
                 'id' => $record->id,
+                'productId' => $record->productId,
                 'pricelistPrice' => $record->pricelistPrice,
                 'product' => $record->getProduct(),
             ];
@@ -129,5 +133,57 @@ class PricelistService extends Component
 
     protected function deleteAllProductsForPricelist(Pricelist $pricelist) {
         PricelistProductRecord::deleteAll(['pricelistId' => $pricelist->getId()]);
+    }
+
+    public function getPricelistsForUser() {
+        $user = Craft::$app->getUser()->getIdentity();
+
+        if(is_null($this->_products)) {
+            $this->_pricelists = [];
+        }
+
+        if($user) {
+            $this->_pricelists = Pricelist::find()->all();
+        }
+
+        return $this->_pricelists;
+    }
+
+    public function getProductsForUser() {
+        $user = Craft::$app->getUser()->getIdentity();
+
+        $pricelists = [];
+
+        if($user) {
+            $pricelists = $this->getPricelistsForUser();
+        }
+
+        if(is_null($this->_products)) {
+            $this->_products = [];
+        }
+
+        if(sizeof($pricelists)) {
+            foreach($pricelists as $pricelist) {
+                foreach($pricelist->getProducts() as $product) {
+                    if(isset($this->_products[$product['productId']])) {
+                        if($this->_products[$product['productId']] > $product['pricelistPrice']) {
+                            $this->_products[$product['productId']] = $product['pricelistPrice'];
+                        }
+                    } else {
+                        $this->_products[$product['productId']] = $product['pricelistPrice'];
+                    }
+                }
+            }
+        }
+
+        return $this->_products;
+    }
+
+    public function getPricelistPriceForProduct($variantId) {
+        if(is_null($this->_products)) {
+            $this->_products = $this->getProductsForUser();
+        }
+
+        return $this->_products[$variantId] ?? null;
     }
 }

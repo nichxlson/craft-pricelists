@@ -12,6 +12,7 @@ class PricelistProductModel extends Model
     public $id;
     public $pricelist;
     public $product;
+    public $productId;
     public $pricelistPrice;
 
     public function getId() {

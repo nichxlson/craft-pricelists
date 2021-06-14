@@ -18,8 +18,11 @@ use craft\services\Elements;
 use craft\web\twig\variables\Cp;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
+use nichxlson\pricelists\behaviors\ProductBehavior;
+use nichxlson\pricelists\behaviors\VariantBehavior;
 use nichxlson\pricelists\elements\Pricelist;
 use nichxlson\pricelists\services\PricelistService;
+use nichxlson\pricelists\variables\PricelistsVariable;
 use yii\base\Event;
 
 class Pricelists extends Plugin
@@ -95,8 +98,7 @@ class Pricelists extends Plugin
             CraftVariable::class,
             CraftVariable::EVENT_INIT,
             function(Event $event) {
-                $variable = $event->sender;
-//                $variable->set('pricelist', PricelistVariable::class);
+                $event->sender->set('pricelists', PricelistsVariable::class);
             }
         );
 
@@ -105,7 +107,7 @@ class Pricelists extends Plugin
             Product::EVENT_DEFINE_BEHAVIORS,
             function(DefineBehaviorsEvent $event) {
                 $event->sender->attachBehaviors([
-//                    ProductBehavior::class
+                    ProductBehavior::class
                 ]);
             }
         );
@@ -115,17 +117,8 @@ class Pricelists extends Plugin
             Variant::EVENT_DEFINE_BEHAVIORS,
             function(DefineBehaviorsEvent $event) {
                 $event->sender->attachBehaviors([
-//                    VariantBehavior::class
+                    VariantBehavior::class
                 ]);
-            }
-        );
-
-        Event::on(
-            LineItems::class,
-            LineItems::EVENT_BEFORE_SAVE_LINE_ITEM,
-            function(LineItemEvent $event) {
-//                $event->lineItem->price = 123;
-//                $event->lineItem->salePrice = 123;
             }
         );
 
@@ -133,8 +126,10 @@ class Pricelists extends Plugin
             LineItems::class,
             LineItems::EVENT_POPULATE_LINE_ITEM,
             function(LineItemEvent $event) {
-//                $event->lineItem->price = 123;
-//                $event->lineItem->salePrice = 123;
+                if($price = self::getInstance()->pricelistService->getPricelistPriceForProduct($event->lineItem->purchasableId)) {
+                    $event->lineItem->price = $price;
+                    $event->lineItem->salePrice = $price;
+                }
             }
         );
 

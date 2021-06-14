@@ -4,13 +4,18 @@ namespace nichxlson\pricelists\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\User;
 use craft\helpers\UrlHelper;
 use nichxlson\pricelists\elements\db\PricelistQuery;
 use nichxlson\pricelists\Pricelists;
 use nichxlson\pricelists\records\PricelistRecord;
+use yii\base\BaseObject;
+use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
 class Pricelist extends Element
 {
@@ -131,14 +136,18 @@ class Pricelist extends Element
 
         if(is_array($customers)) {
             foreach($customers as $customer) {
-                $innerCustomers = $customer['customers'];
+                if(isset($customer['customers'])) {
+                    $innerCustomers = $customer['customers'];
 
-                if(is_array($innerCustomers)) {
-                    foreach($innerCustomers as $innerCustomer) {
-                        $this->_customers[] = [
-                            'customer' => Craft::$app->getUsers()->getUserById($innerCustomer)
-                        ];
+                    if(is_array($innerCustomers)) {
+                        foreach($innerCustomers as $innerCustomer) {
+                            $this->_customers[] = [
+                                'customer' => Craft::$app->getUsers()->getUserById($innerCustomer)
+                            ];
+                        }
                     }
+                } else {
+                    $this->_customers[] = $customer;
                 }
             }
         }
