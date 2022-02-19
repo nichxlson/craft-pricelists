@@ -4,6 +4,7 @@ namespace nichxlson\pricelists\services;
 
 use Craft;
 use craft\base\Component;
+use craft\commerce\Plugin as Commerce;
 use nichxlson\pricelists\elements\Pricelist;
 use nichxlson\pricelists\models\PricelistCustomerModel;
 use nichxlson\pricelists\models\PricelistProductModel;
@@ -136,14 +137,17 @@ class PricelistService extends Component
     }
 
     public function getPricelistsForUser() {
-        $user = Craft::$app->getUser()->getIdentity();
+        $customer = Commerce::getInstance()->customers->getCustomer();
 
         if(is_null($this->_products)) {
             $this->_pricelists = [];
         }
 
-        if($user) {
-            $this->_pricelists = Pricelist::find()->all();
+        if($customer) {
+            $this->_pricelists = Pricelist::find()
+              ->innerJoin(PricelistCustomerRecord::tableName() . ' pricelist_customers', '[[pricelists_pricelist.id]] = [[pricelist_customers.pricelistId]]')
+              ->where(['=', 'pricelist_customers.customerId', $customer->id])
+              ->all();
         }
 
         return $this->_pricelists;

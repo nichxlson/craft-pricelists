@@ -9,8 +9,7 @@ use yii\base\Behavior;
 class ProductBehavior extends Behavior
 {
     public function getPricelistPrice() {
-        $variantId = $this->owner->defaultVariantId;
-        return Pricelists::getInstance()->pricelistService->getPricelistPriceForProduct($variantId);
+        return Pricelists::getInstance()->pricelistService->getPricelistPriceForProduct($this->owner->defaultVariantId);
     }
     
     public function getPricelistPriceAsCurrency() {
